@@ -46,3 +46,25 @@ kotlin {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// kotlin
+jooq {
+    configurations {
+        create("main") {
+            jooqConfiguration.apply {
+                logging = org.jooq.meta.jaxb.Logging.INFO
+                generator.apply {
+                    name = "org.jooq.codegen.DefaultGenerator"
+                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                    database.name = "org.jooq.meta.postgres.PostgresDatabase"
+                    database.inputSchema = "public"
+                    generate.isDeprecated = false
+                    generate.isRecords = true
+                    generate.isPojos = true
+                    target.packageName = "com.example.jooq"
+                    target.directory = "build/generated-src/jooq/main"
+                }
+            }
+        }
+    }
+}
