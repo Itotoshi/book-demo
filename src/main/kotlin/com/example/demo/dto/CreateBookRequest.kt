@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.PositiveOrZero
 
 data class CreateBookRequest (
-    @field:NotBlank
+    @field:NotBlank(message = "{book.title.notBlank}")
     val title: String,
 
-    @field:PositiveOrZero
+    @field:PositiveOrZero(message = "{book.price.positiveOrZero}")
     val price: Double,
 
     @field:NotEmpty
