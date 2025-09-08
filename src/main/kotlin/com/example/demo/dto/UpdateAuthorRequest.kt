@@ -4,5 +4,5 @@ import java.time.LocalDate
 
 data class UpdateAuthorRequest(
     val name: String?,
-    val birthDay: LocalDate?
+    val birthday: LocalDate?
 )

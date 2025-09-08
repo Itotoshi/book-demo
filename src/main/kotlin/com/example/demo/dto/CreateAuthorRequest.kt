@@ -9,5 +9,5 @@ data class CreateAuthorRequest (
     val name: String,
 
     @field:Past
-    val birthDay: LocalDate
+    val birthday: LocalDate
 )

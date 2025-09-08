@@ -3,7 +3,8 @@ plugins {
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.5.5"
 	id("io.spring.dependency-management") version "1.1.7"
-    id("nu.studer.jooq") version "8.0"
+    id("org.flywaydb.flyway") version "9.20.0"
+    id("org.jooq.jooq-codegen-gradle") version "3.19.25"
 }
 
 group = "com.example"
@@ -31,10 +32,16 @@ dependencies {
 	implementation("org.flywaydb:flyway-database-postgresql")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("org.postgresql:postgresql")
+    implementation("org.jooq:jooq:3.19.11")
+    implementation("org.jooq:jooq-meta:3.19.11")
+    implementation("org.jooq:jooq-codegen:3.19.11")
+    implementation("org.jooq:jooq-postgres-extensions:3.19.11")
+    runtimeOnly("org.postgresql:postgresql:42.7.4")
+    jooqCodegen("org.postgresql:postgresql:42.7.4")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 }
 
 kotlin {
@@ -47,24 +54,41 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-// kotlin
+flyway {
+    url = "jdbc:postgresql://localhost:5432/mydatabase"
+    user = "myuser"
+    password = "secret"
+    schemas = arrayOf("public")
+    locations = arrayOf("filesystem:src/main/resources/db/migration")
+}
+
 jooq {
-    configurations {
-        create("main") {
-            jooqConfiguration.apply {
-                logging = org.jooq.meta.jaxb.Logging.INFO
-                generator.apply {
-                    name = "org.jooq.codegen.DefaultGenerator"
-                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
-                    database.name = "org.jooq.meta.postgres.PostgresDatabase"
-                    database.inputSchema = "public"
-                    generate.isDeprecated = false
-                    generate.isRecords = true
-                    generate.isPojos = true
-                    target.packageName = "com.example.jooq"
-                    target.directory = "build/generated-src/jooq/main"
-                }
+    configuration {
+        jdbc {
+            driver = "org.postgresql.Driver"
+            url = "jdbc:postgresql://localhost:5432/mydatabase"
+            user = "myuser"
+            password = "secret"
+        }
+        generator {
+            name = "org.jooq.codegen.DefaultGenerator"
+            database{
+                name = "org.jooq.meta.postgres.PostgresDatabase"
+                inputSchema = "public"
+                includes = ".*"
             }
+            target{
+                packageName = "com.example.jooq"
+                directory = "build/generated-src/jooq/main"
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("build/generated-src/jooq/main")
         }
     }
 }

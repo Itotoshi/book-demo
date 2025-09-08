@@ -1,0 +1,1 @@
+ALTER TABLE authors RENAME COLUMN dob TO birthday;
