@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+</head>
+<body>
+<form id="authorForm" th:action="@{/api/authors}" method="post" th:object="${authors}">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <label>
+        著者名:
+        <input type="text" th:field="*{name}" required>
+    </label>
+    <br>
+    <label>
+        誕生日:
+        <input type="date" th:field="*{birthday}" required>
+    </label>
+    <br>
+    <button type="submit">送信</button>
+</form>
+<pre id="response"></pre>
+
+
+<script>
+    const form = document.getElementById('authorForm');
+    const responseEl = document.getElementById('response');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // ページ遷移を防ぐ
+
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            birthday: formData.get('birthday')
+        };
+
+        const token = document.querySelector('input[name="_csrf"]')?.value;
+
+        const res = await fetch('/api/authors', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': token
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            const json = await res.json();
+            responseEl.innerText = JSON.stringify(json, null, 2);
+        } else {
+            responseEl.innerText = `Error: ${res.status}`;
+        }
+    });
+</script>
+</body>
+</html>
