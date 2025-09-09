@@ -1,14 +1,20 @@
 package com.example.demo.dto
 
+import com.example.demo.enums.PublicationStatus
 import jakarta.validation.constraints.PositiveOrZero
+import java.math.BigDecimal
 
-data class UpdateBookRequest (
-    val title: String?,
+/**
+ * 書籍更新リクエスト
+ */
+data class UpdateBookRequest(
+    val title: String? = null,
 
     @field:PositiveOrZero(message = "{book.price.positiveOrZero}")
-    val price: Double?,
+    val price: BigDecimal? = null,
 
-    val published: Boolean?,
+    val authorIds: List<Int>? = null,
 
-    val authorIds: List<Int>?
+    val status: PublicationStatus? = null
+
 )
