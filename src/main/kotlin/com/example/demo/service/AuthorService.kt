@@ -7,8 +7,10 @@ import com.example.jooq.Tables.AUTHORS
 import org.jooq.DSLContext
 import org.jooq.UpdateSetMoreStep
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.security.InvalidParameterException
 
+@Transactional
 @Service
 class AuthorService(private val dsl: DSLContext) {
 

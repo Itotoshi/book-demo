@@ -10,7 +10,9 @@ import com.example.jooq.tables.BookAuthors.BOOK_AUTHORS
 import org.jooq.DSLContext
 import org.jooq.UpdateSetMoreStep
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
+@Transactional
 @Service
 class BookService(private val dsl: DSLContext) {
     /**
@@ -31,12 +33,17 @@ class BookService(private val dsl: DSLContext) {
                 .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
                 .execute()
         }
+        // レスポンス作成用に登録された著者IDを取得
+        val registeredAuthorIds = dsl.select(BOOK_AUTHORS.AUTHOR_ID)
+            .from(BOOK_AUTHORS)
+            .where(BOOK_AUTHORS.BOOK_ID.eq(bookRecord.get(BOOKS.ID)!!))
+            .fetch(BOOK_AUTHORS.AUTHOR_ID)
 
         return BookResponse(
             id = bookRecord.get(BOOKS.ID)!!,
             title = bookRecord.get(BOOKS.TITLE)!!,
             price = bookRecord.get(BOOKS.PRICE)!!,
-            authorIds = request.authorIds,
+            authorIds = registeredAuthorIds,
             status = PublicationStatus.valueOf(bookRecord.get(BOOKS.STATUS)!!)
         )
     }
