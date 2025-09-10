@@ -23,22 +23,21 @@ class BookService(private val dsl: DSLContext) {
             .set(BOOKS.STATUS, request.status.name)
             .returning()
             .fetchOne()!!
-        val bookId = bookRecord.id!!
 
         // 中間テーブルに著者を紐付け
         request.authorIds.forEach { authorId ->
             dsl.insertInto(BOOK_AUTHORS)
-                .set(BOOK_AUTHORS.BOOK_ID, bookId)
+                .set(BOOK_AUTHORS.BOOK_ID, bookRecord.get(BOOKS.ID)!!)
                 .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
                 .execute()
         }
 
         return BookResponse(
-            id = bookId,
-            title = bookRecord.title!!,
-            price = bookRecord.price!!,
+            id = bookRecord.get(BOOKS.ID)!!,
+            title = bookRecord.get(BOOKS.TITLE)!!,
+            price = bookRecord.get(BOOKS.PRICE)!!,
             authorIds = request.authorIds,
-            status = PublicationStatus.valueOf(bookRecord.status!!)
+            status = PublicationStatus.valueOf(bookRecord.get(BOOKS.STATUS)!!)
         )
     }
 
