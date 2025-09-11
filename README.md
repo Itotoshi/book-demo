@@ -27,7 +27,7 @@ APIテストツールで呼び出す場合はログインやCSRFトークン認�
 
 
 ### 2.環境選択
-画面右上部が「No Environment」となってる場合は押下して「New Environment」を選択
+画面右上部が「No Environment」となっている場合は押下して「New Environment」を選択
 <img width="1851" height="920" alt="image" src="https://github.com/user-attachments/assets/d7c99ed7-772a-4ec2-9e2c-b26a3a49745b" />
 
 
