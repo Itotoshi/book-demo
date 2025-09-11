@@ -6,8 +6,10 @@ import com.example.demo.dto.UpdateBookRequest
 import com.example.demo.enums.PublicationStatus
 import com.example.jooq.Tables.BOOKS
 import com.example.jooq.tables.BookAuthors.BOOK_AUTHORS
+import com.example.jooq.tables.records.BooksRecord
 
 import org.jooq.DSLContext
+import org.jooq.Result
 import org.jooq.UpdateSetMoreStep
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -137,27 +139,30 @@ class BookService(private val dsl: DSLContext) {
      */
     fun getBooksByAuthor(authorId: Int): List<BookResponse> {
         // 本と中間テーブルをJOINして著者の本を取得
-        val records = dsl.select(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.STATUS)
+        val records: Result<BooksRecord> = dsl
+            .select(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.STATUS)
             .from(BOOKS)
             .join(BOOK_AUTHORS).on(BOOKS.ID.eq(BOOK_AUTHORS.BOOK_ID))
             .where(BOOK_AUTHORS.AUTHOR_ID.eq(authorId))
-            .fetch()
+            .fetchInto(BOOKS)
 
         // 各本に紐づく著者リストを取得
         return records.map { record ->
-            val bookId = record[BOOKS.ID]!!
+            val bookId = record?.let { it[BOOKS.ID]!! }
             val authorIds = dsl.select(BOOK_AUTHORS.AUTHOR_ID)
                 .from(BOOK_AUTHORS)
                 .where(BOOK_AUTHORS.BOOK_ID.eq(bookId))
                 .fetch { it.value1() }
 
-            BookResponse(
-                id = bookId,
-                title = record[BOOKS.TITLE]!!,
-                price = record[BOOKS.PRICE]!!,
-                authorIds = authorIds,
-                status = PublicationStatus.valueOf(record[BOOKS.STATUS]!!)
-            )
+            bookId?.let {
+                BookResponse(
+                    id = it,
+                    title = record[BOOKS.TITLE]!!,
+                    price = record[BOOKS.PRICE]!!,
+                    authorIds = authorIds,
+                    status = PublicationStatus.valueOf(record[BOOKS.STATUS]!!)
+                )
+            }
         }
     }
 }
