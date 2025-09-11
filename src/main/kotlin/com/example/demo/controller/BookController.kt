@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 class BookController(private val bookService: BookService) {
     /**
      * 書籍を新規登録
